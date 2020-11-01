@@ -13,5 +13,5 @@ export default [
 		writer: '아이린3',
 		title: '레드벨벳3',
 		content: '3'
-	},
+	}
 ]
