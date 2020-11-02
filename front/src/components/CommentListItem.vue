@@ -7,9 +7,7 @@
       </div>
       <template v-if="isUpdateComment">
         <b-form-textarea
-        id="textarea"
         v-model="context"
-        placeholder=""
         rows="5"
         max-rows="5"
       ></b-form-textarea>
@@ -44,10 +42,20 @@
           <div>{{item.user_name}}</div>
           <div>{{item.created_at}}</div>
         </div>
+        <template v-if="isUpdateSubComment">
+        <b-form-textarea
+        v-model="subContext"
+        rows="5"
+        max-rows="5"
+      ></b-form-textarea>
+      </template>
+      <template v-else>
         <div class="comment-list-item-context">{{item.context}}</div>
+      </template>
+        
         <div class="comment-list-item-button">
-          <b-button variant="info">수정</b-button>
-          <b-button variant="info">삭제</b-button>
+          <b-button variant="info" @click="isUpdateSubComment ? updateSubCommentData(item.subcomment_id): showSubCommentUpdateForm()">수정</b-button>
+          <b-button variant="info" @click="isUpdateSubComment ? cancel2(): deleteSubCommentData()">{{isUpdateComment ? '취소': '삭제'}}</b-button>
         </div>
       </div>
     </template>
@@ -60,6 +68,7 @@ export default {
   name: "CommentListItem",
   props: {
     commentObj: Object,
+    subCommentArray: Array,
     reloadComments: Function
   },
   components: {
@@ -80,8 +89,10 @@ export default {
       })),
       subCommentCreateToggle: false,
       isUpdateComment: false,
-      context: this.commentObj.context
-    };
+      isUpdateSubComment: false,
+      context: this.commentObj.context,
+      subContext:''
+      };
   },
   methods: {
     subCommentToggle() {
@@ -114,7 +125,30 @@ export default {
     cancel() {
     this.isUpdateComment = !this.isUpdateComment
 
-    }
+    },
+
+    deleteSubCommentData() {
+      const subComment_index = data.SubComment.findIndex(item => item.comment_id === this.commentObj.comment_id);
+      alert(subComment_index)
+      data.SubComment.splice(subComment_index, 1)
+      this.reloadSubComments();
+    },
+    updateSubCommentData(subComment_id) {
+      // 바인딩이 안돼~!!
+      var subCommentIndex = this.subCommentList.findIndex(item => item.subcomment_id === subComment_id)
+      alert(this.subCommentList[subCommentIndex].context)
+      this.subCommentList[subCommentIndex].context = this.subContext
+      this.reloadSubComments();
+      this.isUpdateSubComment = !this.isUpdateSubComment
+    },
+    showSubCommentUpdateForm() {
+      this.isUpdateSubComment = !this.isUpdateSubComment
+    },
+    cancel2() {
+    this.isUpdateSubComment = !this.isUpdateSubComment
+
+    },
+    
   }
 };
 </script>

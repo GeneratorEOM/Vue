@@ -22,6 +22,7 @@ export default {
   data() {
     return {
       comments: data.Comment.filter(item => item.content_id === this.contentId),
+
     }
   },
   methods: {
