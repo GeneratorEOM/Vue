@@ -5,11 +5,25 @@
         <div>{{name}}</div>
         <div>{{commentObj.created_at}}</div>
       </div>
-      <div class="comment-list-item-context">{{commentObj.context}}</div>
+      <template v-if="isUpdateComment">
+        <b-form-textarea
+        id="textarea"
+        v-model="context"
+        placeholder=""
+        rows="5"
+        max-rows="5"
+      ></b-form-textarea>
+      </template>
+      <template v-else>
+        <div class="comment-list-item-context">{{commentObj.context}}</div>
+      </template>
+      
       <div class="comment-list-item-button">
-        <b-button variant="info">수정</b-button>
-        <b-button variant="info">삭제</b-button>
-        <b-button variant="info" @click="subCommentToggle">덧글 달기</b-button>
+        <b-button variant="info" @click="isUpdateComment ? updateCommentData(): showCommentUpdateForm()">수정</b-button>
+        <b-button variant="info" @click="isUpdateComment ? cancel(): deleteCommentData()">{{isUpdateComment ? '취소': '삭제'}}</b-button>
+        <template v-if="!isUpdateComment">
+          <b-button variant="info" @click="subCommentToggle">댓글</b-button>
+        </template>
       </div>
     </div>
     <template v-if="subCommentCreateToggle">
@@ -45,7 +59,8 @@ import CommentCreate from "./CommentCreate";
 export default {
   name: "CommentListItem",
   props: {
-    commentObj: Object
+    commentObj: Object,
+    reloadComments: Function
   },
   components: {
     CommentCreate
@@ -63,7 +78,9 @@ export default {
           item => item.user_id === subCommentItem.user_id
         )[0].name
       })),
-      subCommentCreateToggle: false
+      subCommentCreateToggle: false,
+      isUpdateComment: false,
+      context: this.commentObj.context
     };
   },
   methods: {
@@ -79,6 +96,24 @@ export default {
           item => item.user_id === subCommentItem.user_id
         )[0].name 
       }));
+    },
+    deleteCommentData() {
+      const comment_index = data.Comment.findIndex(item => item.comment_id === this.commentObj.comment_id);
+      alert(comment_index)
+      data.Comment.splice(comment_index, 1)
+      this.reloadComments();
+    },
+    updateCommentData() {
+      this.commentObj.context = this.context
+      this.reloadComments();
+      this.isUpdateComment = !this.isUpdateComment
+    },
+    showCommentUpdateForm() {
+      this.isUpdateComment = !this.isUpdateComment
+    },
+    cancel() {
+    this.isUpdateComment = !this.isUpdateComment
+
     }
   }
 };
@@ -101,7 +136,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 50em;
+  width: 45em;
   border: 0.5px solid black;
 }
 .comment-list-item-button {
